@@ -25,19 +25,19 @@ FIGURES_DIR = REPORTS_DIR / "figures"
 
 MODEL_NAME = "employee-attrition-prediction"  #or "employee-churn-classifier"?
 
-# Features and target
 categorical = [
     "Education",
     "City",
     "Gender",
     "EverBenched",
-    "PaymentTier",  # Zakładając, że to kategoryczne (np. 1, 2, 3 to poziomy płacowe)
+    "PaymentTier"
 ]
 
 numerical = [
     "JoiningYear",
     "Age",
-    "ExperienceInCurrentDomain",
+    "ExperienceInCurrentDomain"
 ]
 
-target = "LeaveOrNot"  # Zmienna docelowa wskazująca, czy pracownik opuścił firmę
+# Zmienna docelowa
+target = "LeaveOrNot"
