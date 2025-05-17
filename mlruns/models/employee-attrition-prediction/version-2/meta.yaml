@@ -1,0 +1,14 @@
+aliases: []
+creation_timestamp: 1747512350730
+current_stage: None
+description: null
+last_updated_timestamp: 1747512350730
+name: employee-attrition-prediction
+run_id: f0ff5aab95174966b384056faddc198d
+run_link: null
+source: file:///C:/Users/Karolina/Desktop/Studia%20mgr/Podyplom%C3%B3wka/MLOps/MLOps-Filnal-Assignment/mlruns/882018557220663914/f0ff5aab95174966b384056faddc198d/artifacts/model
+status: READY
+status_message: null
+storage_location: file:///C:/Users/Karolina/Desktop/Studia%20mgr/Podyplom%C3%B3wka/MLOps/MLOps-Filnal-Assignment/mlruns/882018557220663914/f0ff5aab95174966b384056faddc198d/artifacts/model
+user_id: null
+version: 2
