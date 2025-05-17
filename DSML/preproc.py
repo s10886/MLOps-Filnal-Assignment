@@ -9,27 +9,22 @@ import pandas as pd
 
 from DSML.config import (
     DATASET,
-    DATASET_TEST,
     PROCESSED_DATA_DIR,
     RAW_DATA_DIR,
 )
 
 
-def get_raw_data(dataset:str=DATASET, dataset_test:str=DATASET_TEST)->None:
+def get_raw_data(dataset:str=DATASET)->None:
     api = KaggleApi()
     api.authenticate()
 
-    download_folder = Path(RAW_DATA_DIR)
-    zip_path = download_folder / "employee-dataset.zip"
-
     logger.info(f"RAW_DATA_DIR is: {RAW_DATA_DIR}")
-    api.competition_download_files(dataset, path=str(download_folder))
-    api.dataset_download_files(dataset_test, path=str(download_folder), unzip=True)
+    api.dataset_download_files(
+        dataset="tawfikelmetwally/employee-dataset",
+        path=str(RAW_DATA_DIR),
+        unzip=True
+    )
 
-    with zipfile.ZipFile(zip_path, "r") as zip_ref:
-        zip_ref.extractall(str(download_folder))
-
-    Path.unlink(zip_path)
 
 
 def preprocess_df(file:str|Path)->str|Path:
