@@ -12,7 +12,7 @@ import plotly.graph_objects as go
 from sklearn.metrics import f1_score, log_loss
 from sklearn.model_selection import train_test_split
 
-from ARISA_DSML.config import (
+from DSML.config import (
     FIGURES_DIR,
     MODEL_NAME,
     MODELS_DIR,
@@ -20,7 +20,7 @@ from ARISA_DSML.config import (
     categorical,
     target,
 )
-from ARISA_DSML.helpers import get_git_commit_hash
+from DSML.helpers import get_git_commit_hash
 import nannyml as nml
 
 
@@ -318,7 +318,7 @@ def get_or_create_experiment(experiment_name:str):
 
 if __name__=="__main__":
     # for running in workflow in actions again again
-    df_train = pd.read_csv(PROCESSED_DATA_DIR / "train.csv")
+    df_train = pd.read_csv(PROCESSED_DATA_DIR / "Employee.csv")
 
     y_train = df_train.pop(target)
     X_train = df_train

@@ -1,0 +1,3 @@
+Index(['Education', 'JoiningYear', 'City', 'PaymentTier', 'Age', 'Gender',
+       'EverBenched', 'ExperienceInCurrentDomain'],
+      dtype='object')

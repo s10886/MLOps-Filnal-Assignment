@@ -46,6 +46,4 @@ if __name__=="__main__":
 
     # preprocess both sets
     logger.info("preprocessing train.csv")
-    preprocess_df(RAW_DATA_DIR / "train.csv")
-    logger.info("preprocessing test.csv")
-    preprocess_df(RAW_DATA_DIR / "test.csv")
+    preprocess_df(RAW_DATA_DIR / "Employee.csv")

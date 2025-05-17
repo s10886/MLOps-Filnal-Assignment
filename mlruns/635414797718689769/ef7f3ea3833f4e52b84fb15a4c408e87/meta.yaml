@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Karolina/Desktop/Studia%20mgr/Podyplom%C3%B3wka/MLOps/MLOps-Filnal-Assignment/mlruns/635414797718689769/ef7f3ea3833f4e52b84fb15a4c408e87/artifacts
+end_time: 1747511302364
+entry_point_name: ''
+experiment_id: '635414797718689769'
+lifecycle_stage: active
+run_id: ef7f3ea3833f4e52b84fb15a4c408e87
+run_name: resilient-rook-65
+run_uuid: ef7f3ea3833f4e52b84fb15a4c408e87
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747511299263
+status: 3
+tags: []
+user_id: Karolina

@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Karolina/Desktop/Studia%20mgr/Podyplom%C3%B3wka/MLOps/MLOps-Filnal-Assignment/mlruns/635414797718689769/ca95a0c2ac9a4c31983fd30d3198edb9/artifacts
+end_time: 1747511326602
+entry_point_name: ''
+experiment_id: '635414797718689769'
+lifecycle_stage: active
+run_id: ca95a0c2ac9a4c31983fd30d3198edb9
+run_name: big-sloth-199
+run_uuid: ca95a0c2ac9a4c31983fd30d3198edb9
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747511325572
+status: 3
+tags: []
+user_id: Karolina

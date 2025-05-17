@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/Karolina/Desktop/Studia%20mgr/Podyplom%C3%B3wka/MLOps/MLOps-Filnal-Assignment/mlruns/635414797718689769/eeff8dd721854833bfc0d1c0221d64c7/artifacts
+end_time: 1747511271035
+entry_point_name: ''
+experiment_id: '635414797718689769'
+lifecycle_stage: active
+run_id: eeff8dd721854833bfc0d1c0221d64c7
+run_name: sedate-eel-112
+run_uuid: eeff8dd721854833bfc0d1c0221d64c7
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1747511268483
+status: 3
+tags: []
+user_id: Karolina
