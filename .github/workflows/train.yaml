@@ -1,0 +1,93 @@
+name: Preproc data and train model
+
+on: 
+  push:
+    branches:
+      - main
+    paths:  # (re)train when train data changes or when the preproc or train code changes
+      - 'data/raw/train.csv'
+      - 'data/processed/train.csv'
+      - 'DSML/preproc.py'
+      - 'DSML/train.py'
+      - 'DSML/config.py'
+      - 'models/best_params.pkl'  # model should also be retrained after hyperparam tuning is run
+      - 'requirements.txt' # retrain model whenever libraries are updated (to fix conflicts)
+
+  workflow_dispatch: #Allow to execute the pipeline manually
+ 
+jobs:
+  preprocess:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository # Checkout repository to have the latest version of code to use
+        uses: actions/checkout@v4
+
+      - name: Set up Python # Step used to setup proper Python version for code execution
+        uses: actions/setup-python@v4
+        with: 
+          python-version: "3.11"
+
+      - name: Install dependencies # Step used to install all necessary Python libraries based on setup in Makefile
+        run: make requirements
+
+      - name: Create kaggle directory # Get value of KAGGLE_API_KEY and save it in json file to be able to download dataset
+        env: 
+          KAGGLE_KEY: ${{ secrets.KAGGLE_API_KEY }}
+        run: |
+          mkdir -p $HOME/.config
+          mkdir -p $HOME/.config/kaggle
+          echo "$KAGGLE_KEY" > $HOME/.config/kaggle/kaggle.json
+          chmod 600 $HOME/.config/kaggle/kaggle.json
+
+      - name: Run preprocessing # Execute DSML.preproc.py code to make all necessary data manipulations
+        run: make preprocess
+
+      - name: Upload preprocessed data # Attach the preprocessed data as artifact to run
+        uses: actions/upload-artifact@v4
+        with:
+          name: processed-data
+          path: data/processed
+
+  train:
+    runs-on: ubuntu-latest
+    needs: preprocess
+    permissions:
+      contents: write  # This gives the token write access to the repository contents
+      actions: write   # ✅ Allows triggering other workflows!
+    steps: 
+      - name: Checkout repository # Checkout repository to have the latest version of code to use
+        uses: actions/checkout@v4
+
+      - name: Download processed data # Get data preprocessed in previous job to use in predictions
+        uses: actions/download-artifact@v4
+        with:
+          name: processed-data
+          path: data/processed
+
+      - name: Set up Python # Step used to setup proper Python version for code execution
+        uses: actions/setup-python@v4
+        with: 
+          python-version: "3.11"
+
+      - name: Install dependencies # Step used to install all necessary Python libraries based on setup in Makefile
+        run: make requirements
+
+      - name: Run training # Execute training
+        env:
+          MLFLOW_TRACKING_URI: ${{secrets.MLFLOW_TRACKING_URI}}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: make train
+
+      - name: Upload trained model # Upload trained model artifacts to the run history
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: models/
+
+      - name: Trigger Predict Workflow # Execute predictions based on the training results
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/actions/workflows/predict_on_model_change.yml/dispatches \
+          -d '{"ref":"main"}'

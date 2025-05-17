@@ -1,0 +1,104 @@
+name: Predict on new data or with new model
+
+on: 
+  push:
+    branches:
+      - main
+    paths:  # predict when the test set has changed, as well as when the model artifact is updated
+      - 'data/raw/test.csv'
+      - 'data/processed/test.csv'
+      - 'DSML/predict.py'
+      - 'models/heart-risk.cbm'
+  workflow_dispatch:  # Allows manual triggering from the train workflow
+
+jobs:
+  preprocess:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout repository # Checkout repository to have the latest version of code to use
+        uses: actions/checkout@v4
+
+      - name: Set up Python # Step used to setup proper Python version for code execution
+        uses: actions/setup-python@v4
+        with: 
+          python-version: "3.11"
+
+      - name: Install dependencies # Step used to install all necessary Python libraries based on setup in Makefile
+        run: make requirements
+
+      - name: Create kaggle directory # Get value of KAGGLE_API_KEY and save it in json file to be able to download dataset
+        env: 
+          KAGGLE_KEY: ${{ secrets.KAGGLE_API_KEY }}
+        run: |
+          mkdir -p $HOME/.config
+          mkdir -p $HOME/.config/kaggle
+          echo "$KAGGLE_KEY" > $HOME/.config/kaggle/kaggle.json
+          chmod 600 $HOME/.config/kaggle/kaggle.json
+
+      - name: Run preprocessing # Execute DSML.preproc.py code to make all necessary data manipulations
+        run: make preprocess
+
+      - name: Upload preprocessed data # Attach the preprocessed data as artifact to run
+        uses: actions/upload-artifact@v4
+        with:
+          name: processed-data
+          path: data/processed
+
+  predict:
+    runs-on: ubuntu-latest
+    needs: preprocess
+    permissions:
+      contents: write  # This gives the token write access to the repository contents
+    steps: 
+      - name: Checkout repository # Checkout repository to have the latest version of code to use
+        uses: actions/checkout@v4
+
+      - name: Get predictions start date and time # Get the timestamp of predictions start timestamp to use save predictions in appropriate S3 path
+        id: predictions_timestamp
+        run: echo "::set-output name=predictions_timestamp::$(date +'%Y%m%d%H%M%S')"
+
+      - name: Download processed data # Get data preprocessed in previous job to use in predictions
+        uses: actions/download-artifact@v4
+        with:
+          name: processed-data
+          path: data/processed
+
+      - name: Set up Python # Step used to setup proper Python version for code execution
+        uses: actions/setup-python@v4
+        with: 
+          python-version: "3.11"
+
+      - name: Install dependencies # Step used to install all necessary Python libraries based on setup in Makefile
+        run: make requirements
+
+      - name: Resolve challenge # Execute DSML.resolve.py to resolve the model challange
+        env:
+          MLFLOW_TRACKING_URI: ${{secrets.MLFLOW_TRACKING_URI}}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: make resolve
+
+      - name: Predict on test data # Make the predictions with use of the best available model
+        env:
+          MLFLOW_TRACKING_URI: ${{secrets.MLFLOW_TRACKING_URI}}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: make predict
+
+      - name: Upload predictions # Attach predictions as artifact to the run
+        uses: actions/upload-artifact@v4
+        with:
+          name: predictions
+          path: models/preds.csv
+
+      # - name: Install AWS CLI # Install AWS CLI to be able to save predictions to S3 bucket
+      #   run: |
+      #     pip install --upgrade awscli
+
+      # - name: Upload predictions to S3 # Save predictions in S3
+      #   env:
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     ARTIFACT_BUCKET: ${{ secrets.ARTIFACT_BUCKET }}
+      #   run: |
+      #     aws s3 cp models/preds.csv s3://${{secrets.ARTIFACT_BUCKET}}/predictions/${{ steps.predictions_timestamp.outputs.predictions_timestamp }}/preds.csv --acl private
